@@ -82,8 +82,8 @@ if (isset($_POST['action'])) {
 /**
  * Select all tasks from the database.
  */
-$selectQuery = ''; // IMPLEMENT ME
-$items = $db->query($selectQuery);
+$selectQuery = 'SELECT * FROM todo ORDER BY created_at DESC';
+$items = $db->query($selectQuery)->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <html>
