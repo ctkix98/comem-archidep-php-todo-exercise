@@ -40,18 +40,22 @@ if (isset($_POST['action'])) {
      * Toggle a task (i.e. if it is done, undo it; if it is not done, mark it as done),
      * then redirect to the base URL.
      */
-    case 'toggle':
+         case 'toggle':
 
       $id = $_POST['id'];
-      if(is_numeric($id)) {
-        $updateQuery = ''; // IMPLEMENT ME
-        if(!$db->query($updateQuery)) {
+      if (is_numeric($id)) {
+        $updateQuery = 'UPDATE todo SET done = NOT done WHERE id = :id';
+        $stmt = $db->prepare($updateQuery);
+
+
+        if (!$stmt->execute([':id' => $id])) {
           die(print_r($db->errorInfo(), true));
         }
       }
 
-      header('Location: '.BASE_URL);
+      header('Location: ' . BASE_URL);
       die();
+
 
     /**
      * Delete a task, then redirect to the base URL.
