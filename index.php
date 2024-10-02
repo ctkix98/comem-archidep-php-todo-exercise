@@ -60,8 +60,9 @@ if (isset($_POST['action'])) {
 
       $id = $_POST['id'];
       if(is_numeric($id)) {
-        $deleteQuery = ''; // IMPLEMENT ME
-        if(!$db->query($deleteQuery)) {
+        $deleteQuery = 'DELETE FROM todo WHERE id = :id'; // IMPLEMENT ME
+        $stmt = $db->prepare($deleteQuery);
+        if(!$stmt->execute([':id' => $id])) {
           die(print_r($db->errorInfo(), true));
         }
       }
