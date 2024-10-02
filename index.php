@@ -64,7 +64,7 @@ if (isset($_POST['action'])) {
 
       $id = $_POST['id'];
       if(is_numeric($id)) {
-        $deleteQuery = 'DELETE FROM todo WHERE id = :id'; // IMPLEMENT ME
+        $deleteQuery = 'DELETE FROM todo WHERE id = :id';
         $stmt = $db->prepare($deleteQuery);
         if(!$stmt->execute([':id' => $id])) {
           die(print_r($db->errorInfo(), true));
@@ -82,8 +82,8 @@ if (isset($_POST['action'])) {
 /**
  * Select all tasks from the database.
  */
-$selectQuery = ''; // IMPLEMENT ME
-$items = $db->query($selectQuery);
+$selectQuery = 'SELECT * FROM todo ORDER BY created_at DESC';
+$items = $db->query($selectQuery)->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <html>
