@@ -5,7 +5,7 @@ define('BASE_URL', 'index.php');
 
 // Database connection parameters.
 define('DB_USER', 'todolist');
-define('DB_PASS', 'jN^T93Gb2#6uAp');
+define('DB_PASS', 'VeADep!97');
 define('DB_NAME', 'todolist');
 define('DB_HOST', '127.0.0.1');
 define('DB_PORT', '8889');
