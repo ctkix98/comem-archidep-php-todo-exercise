@@ -1,20 +1,17 @@
 <?php
 
-// The base path under which the application is exposed. For example, if you are
-// accessing the application at
-// "http://localhost:8888/comem-archidep-php-todo-exercise/", then BASE_URL
-// should be "/comem-archidep-php-todo-exercise/". If you are accessing the
-// application at "http://localhost:8888", then BASE_URL should be "/".
-define('BASE_URL', 'index.php');
+// The base path under which the application is exposed.
+define('BASE_URL', getenv('TODOLIST_BASE_URL') ?: '/');
 
 // Database connection parameters.
-define('DB_USER', 'todolist');
-define('DB_PASS', 'jN^T93Gb2#6uAp');
-define('DB_NAME', 'todolist');
-define('DB_HOST', '127.0.0.1');
-define('DB_PORT', '8889');
+define('DB_USER', getenv('TODOLIST_DB_USER') ?: 'todolist');
+define('DB_PASS', getenv('TODOLIST_DB_PASS'));
+define('DB_NAME', getenv('TODOLIST_DB_NAME') ?: 'todolist');
+define('DB_HOST', getenv('TODOLIST_DB_HOST') ?: '127.0.0.1');
+define('DB_PORT', getenv('TODOLIST_DB_PORT') ?: '3306');
 
 $db = new PDO('mysql:host='.DB_HOST.';port='.DB_PORT.';dbname='.DB_NAME, DB_USER, DB_PASS);
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $items = array();
 
 if (isset($_POST['action'])) {
@@ -24,12 +21,13 @@ if (isset($_POST['action'])) {
      * Insert a new task into the database, then redirect to the base URL.
      */
     case 'new':
-
       $title = $_POST['title'];
       if ($title && $title !== '') {
-        $insertQuery = 'INSERT INTO todo VALUES(NULL, \''.$title.'\', FALSE, CURRENT_TIMESTAMP)';
+        // Utilisation d'une requête préparée pour éviter les injections SQL
+        $insertQuery = 'INSERT INTO todo (title, done, created_at) VALUES (:title, FALSE, CURRENT_TIMESTAMP)';
         //echo $insertQuery;
-        if (!$db->query($insertQuery)) {
+        $stmt = $db->prepare($insertQuery);
+        if (!$stmt->execute([':title' => $title])) {
           die(print_r($db->errorInfo(), true));
         }
       }
@@ -41,14 +39,11 @@ if (isset($_POST['action'])) {
      * Toggle a task (i.e. if it is done, undo it; if it is not done, mark it as done),
      * then redirect to the base URL.
      */
-         case 'toggle':
-
+    case 'toggle':
       $id = $_POST['id'];
       if (is_numeric($id)) {
         $updateQuery = 'UPDATE todo SET done = NOT done WHERE id = :id';
         $stmt = $db->prepare($updateQuery);
-
-
         if (!$stmt->execute([':id' => $id])) {
           die(print_r($db->errorInfo(), true));
         }
@@ -57,17 +52,15 @@ if (isset($_POST['action'])) {
       header('Location: ' . BASE_URL);
       die();
 
-
     /**
      * Delete a task, then redirect to the base URL.
      */
     case 'delete':
-
       $id = $_POST['id'];
-      if(is_numeric($id)) {
+      if (is_numeric($id)) {
         $deleteQuery = 'DELETE FROM todo WHERE id = :id';
         $stmt = $db->prepare($deleteQuery);
-        if(!$stmt->execute([':id' => $id])) {
+        if (!$stmt->execute([':id' => $id])) {
           die(print_r($db->errorInfo(), true));
         }
       }
